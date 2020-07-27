@@ -36,28 +36,28 @@ end
 def verifier_is_valid?(verifier, ssn)
   verifier = verifier.to_i
   ssn_without_verifier = ssn[0..-3].gsub(' ', '').to_i
-  weird_math_result = 97 - ssn_without_verifier % 97 
+  weird_math_result = 97 - ssn_without_verifier % 97
   weird_math_result == verifier
 end
 
 def french_ssn(ssn)
-  regexp = /(?<gender>\d)\s?
-  (?<birth_year>\d{2})\s?
-  (?<birth_month>\d{2})\s?
-  (?<department>\d{2})\s?\d{3}\s?\d{3}\s?
-  (?<verifier>\d{2})/x
+  regexp = /^(?<gender>[12])\s?
+             (?<birth_year>\d{2})\s?
+             (?<birth_month>0[1-9]|1[0-2])\s?
+             (?<department>\d{2}|2[AB])\s?\d{3}\s?\d{3}\s?
+             (?<verifier>\d{2})$/x
 
   match_data = ssn.match(regexp)
   # check whether the ssn is valid
+  # check the verifier and do a weird math to check if it's valid
   return 'invalid ssn number' if !match_data || !verifier_is_valid?(match_data[:verifier], ssn)
 
   data_hash = extract_data(match_data)
-
-  # check the verifier and do a weird math to check if it's valid
 
   # build a meaningful message with the data that was extracted
   "a #{data_hash[:gender]}, born in #{data_hash[:birth_month]}, #{data_hash[:birth_year]} in #{data_hash[:department]}."
 end
 
+# This is how it's going to work
 # french_ssn_info("1 84 12 76 451 089 46")
 # => "a man, born in December, 1984 in Seine-Maritime."
